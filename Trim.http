@@ -1,0 +1,6 @@
+@Trim_HostAddress = http://localhost:5007
+
+GET {{Trim_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Trim.Models
+namespace CrispCut.Models
 {
     public class User
 {

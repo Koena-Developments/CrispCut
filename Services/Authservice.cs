@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CrispCut.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Trim;
-using Trim.Data;
-using Trim.DTOs.UserDto;
+using CrispCut;
+using CrispCut.Data;
+using CrispCut.DTOs.UserDto;
 using BCrypt.Net;
-using Trim.Models;
+using CrispCut.Models;
 
 namespace CrispCut.Services
 {

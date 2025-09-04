@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Trim.DTOs.UserDto
+namespace CrispCut.DTOs.UserDto
 {
   public class UserDto
 {

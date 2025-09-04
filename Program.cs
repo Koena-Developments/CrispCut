@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 // using Trim.Interfaces;
 // using Trim.Services;
-using Trim.Data;
+using CrispCut.Data;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using CrispCut.Interfaces;
 using CrispCut.Services;

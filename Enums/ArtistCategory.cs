@@ -1,4 +1,4 @@
-namespace Trim.Enums
+namespace CrispCut.Enums
 {
   public enum ArtistCategory
 {

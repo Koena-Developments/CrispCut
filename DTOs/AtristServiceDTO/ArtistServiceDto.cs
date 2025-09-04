@@ -1,6 +1,6 @@
 using System;
 
-namespace Trim.DTOs.ArtistServiceDTO
+namespace CrispCut.DTOs.ArtistServiceDTO
 {
     public class ArtistServiceDto
     {

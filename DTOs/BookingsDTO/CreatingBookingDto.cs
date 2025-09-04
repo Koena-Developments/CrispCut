@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Trim.DTOs.BookingsDTO
+namespace CrispCut.DTOs.BookingsDTO
 {
     public class CreateBookingDto
 {

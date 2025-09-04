@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Trim;
+namespace CrispCut;
 
 public class UserForRegistrationDto
 {

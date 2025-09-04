@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 
-using Trim.Models;
+using CrispCut.Models;
 
-namespace Trim.Data
+namespace CrispCut.Data
 {
     public class ApplicationDbContext : DbContext
     {

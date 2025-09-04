@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Trim.DTOs.ArtistServiceDTO;
-using Trim.DTOs.AtristServiceDTO;
+using CrispCut.DTOs.ArtistServiceDTO;
+using CrispCut.DTOs.AtristServiceDTO;
 
-namespace Trim.DTOs.BookingsDTO
+namespace CrispCut.DTOs.BookingsDTO
 {
     public class BookingDetailsDto
     {

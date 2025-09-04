@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-using Trim.Enums;
+using CrispCut.Enums;
 
-namespace Trim.Models
+namespace CrispCut.Models
 {
    
 public class Artist

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Trim.DTOs.AtristServiceDTO
+namespace CrispCut.DTOs.ArtistServiceDTO
 {
 public class ArtistSummaryDto
 {

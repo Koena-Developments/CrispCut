@@ -15,6 +15,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IEmailService, SendGridEmailService>();
+
 
 
 builder.Services.AddControllers();

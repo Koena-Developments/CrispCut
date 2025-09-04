@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using CrispCut.Enums;
-namespace CrispCut.DTOs.AtristServiceDTO
+namespace CrispCut.DTOs.ArtistServiceDTO
 {
     public class ArtistOnBoardingDto
     {

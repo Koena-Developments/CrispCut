@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/pluto/Desktop/Trim/Trim.csproj": {}
+    "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\Trim.csproj": {}
   },
   "projects": {
-    "/home/pluto/Desktop/Trim/Trim.csproj": {
+    "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\Trim.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/pluto/Desktop/Trim/Trim.csproj",
+        "projectUniqueName": "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\Trim.csproj",
         "projectName": "Trim",
-        "projectPath": "/home/pluto/Desktop/Trim/Trim.csproj",
-        "packagesPath": "/home/pluto/.nuget/packages/",
-        "outputPath": "/home/pluto/Desktop/Trim/obj/",
+        "projectPath": "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\Trim.csproj",
+        "packagesPath": "C:\\Users\\motsw\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/pluto/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\motsw\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -38,12 +38,16 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.4, )"
@@ -54,9 +58,17 @@
               "target": "Package",
               "version": "[9.0.8, )"
             },
-            "Pomelo.EntityFrameworkCore.MySql": {
+            "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.8, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
             }
           },
           "imports": [
@@ -78,7 +90,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

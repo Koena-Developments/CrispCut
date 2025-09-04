@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-// Assuming your models are in a YourApp.Domain project
+
 using Trim.Models;
 
-namespace YourApp.Infrastructure.Data
+namespace Trim.Data
 {
     public class ApplicationDbContext : DbContext
     {

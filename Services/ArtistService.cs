@@ -84,10 +84,7 @@ namespace CrispCut.Services
         }
 
 
-        // public Task<ArtistDto> OnboardArtistAsync(ArtistOnBoardingDto onboardingDto)
-        // {
-        //     throw new NotImplementedException();
-        // }
+       
 
         public async Task<ArtistDto> RegisterArtistAsync(ArtistRegistrationDto dto)
         {
@@ -130,9 +127,5 @@ namespace CrispCut.Services
             return artistDto;
         }
 
-        // public Task<ArtistDto> RegisterArtistAsync(ArtistRegistrationDto artistRegistrationDto)
-        // {
-        //     throw new NotImplementedException();
-        // }
     }
 }

@@ -14,6 +14,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
         options.UseSqlite(connectionString));
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IArtistService, ArtistService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

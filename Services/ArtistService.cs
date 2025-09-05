@@ -144,7 +144,6 @@ namespace CrispCut.Services
             {
                 var artist = await _context.Artists.FirstOrDefaultAsync(a => a.UserId == userId);
 
-                // --- MODIFIED: Removed artist verification check ---
                 if (artist == null || artist.Category != dto.Category)
                 {
                     return null;
@@ -171,7 +170,7 @@ namespace CrispCut.Services
                     return null;
                 }
 
-                var newArtistService = new CrispCut.Models.ArtistService
+                var newArtistService = new Models.ArtistService
                 {
                     ArtistId = artist.ArtistId,
                     ServiceId = service.ServiceId,

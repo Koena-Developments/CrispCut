@@ -4,34 +4,45 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CrispCut.Interfaces;
+using CrispCut.DTOs.UserDTO;
 
 namespace CrispCut.Controller
 {
-    [ApiController]
+   [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authservice;
+        private readonly IAuthService _authService;
 
-
-        public AuthController(IAuthService authservice)
+        public AuthController(IAuthService authService)
         {
-            _authservice = authservice;
+            _authService = authService;
         }
 
-
-
-        [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] UserForRegistrationDto userForRegistrationDto)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserForRegistrationDto dto)
         {
-            if (!ModelState.IsValid)
+            var result = await _authService.RegisterUserAsync(dto);
+
+            if (!result.Success)
             {
-                return BadRequest(ModelState);
+                return BadRequest(result.Message);
             }
 
-            var createdUser = await _authservice.RegisterAsync(userForRegistrationDto);
-            return CreatedAtAction(nameof(Register), new { userId = createdUser.UserId }, createdUser);
+            return Ok(result.User);
         }
-    
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserForLoginDto dto)
+        {
+            var result = await _authService.LoginAsync(dto);
+
+            if (!result.Success)
+            {
+                return Unauthorized(result.Message);
+            }
+            
+            return Ok(new { result.Token, result.User });
+        }
     }
 }

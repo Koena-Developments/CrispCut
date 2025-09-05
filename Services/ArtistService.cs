@@ -7,18 +7,24 @@ using CrispCut.Data;
 using CrispCut.DTOs.ArtistServiceDTO;
 using Microsoft.EntityFrameworkCore;
 using CrispCut.Models;
+using CrispCut.DTOs.AtristServiceDTO;
 
 namespace CrispCut.Services
+
 { public class ArtistService : IArtistService
     {
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
 
-        // The IEmailService is injected via the constructor
         public ArtistService(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
             _emailService = emailService;
+        }
+
+        public Task<IEnumerable<ArtistMapPinDto>> GetArtistMapPinsAsync()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<ArtistDto> OnboardArtistAsync(ArtistOnBoardingDto dto)
@@ -56,7 +62,7 @@ namespace CrispCut.Services
                     LocationLat = dto.LocationLat,
                     LocationLng = dto.LocationLng,
                     OperatingHours = dto.OperatingHours,
-                    IsVerified = false // Verification is pending by default
+                    IsVerified = false 
                 };
                 await _context.Artists.AddAsync(newArtist);
                 await _context.SaveChangesAsync();

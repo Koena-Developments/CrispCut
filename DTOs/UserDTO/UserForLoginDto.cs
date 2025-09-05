@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 
 
-namespace CrispCut.DTOs.UserDto
+namespace CrispCut.DTOs.UserDTO
 {
     public class UserForLoginDto
 {

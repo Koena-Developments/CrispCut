@@ -27,9 +27,6 @@ namespace CrispCut.Services
             );
             var to = new EmailAddress(toEmail);
             var msg = MailHelper.CreateSingleEmail(from, to, subject, "", htmlContent);
-            
-            // It's good practice to handle potential exceptions from the API call
-            // For now, we'll let it bubble up, but you could add try-catch here.
             await client.SendEmailAsync(msg);
         }
     }

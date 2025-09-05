@@ -4,62 +4,49 @@ using System.Linq;
 using System.Threading.Tasks;
 using CrispCut.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using CrispCut;
 using CrispCut.Data;
-using CrispCut.DTOs.UserDto;
-using BCrypt.Net;
+// using CrispCut.DTOs.UserDto;
 using CrispCut.Models;
+using CrispCut.DTOs.UserDTO;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CrispCut.Services
 {
-    public class AuthService : IAuthService
+   public class AuthService : IAuthService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(ApplicationDbContext context)
+        public AuthService(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
-            public Task<UserDto> LoginAsynce(UserForLoginDto userForLogin)
-            {
-                throw new NotImplementedException();
-            }
-
-
-
-        // REGISTRATION SERVICE
-        public async Task<UserDto> RegisterAsync(UserForRegistrationDto userForRegistrationDto)
+        public async Task<AuthResponseDto> RegisterUserAsync(UserForRegistrationDto dto)
         {
-            // 1. Check if a user with the same email already exists to prevent duplicates.
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userForRegistrationDto.Email);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (existingUser != null)
             {
-                // Throw a specific exception that the controller can catch and handle.
-                throw new InvalidOperationException("User with this email already exists.");
+                return new AuthResponseDto { Success = false, Message = "Email is already in use." };
             }
 
-            // 2. Hash the user's password using BCrypt. Never store plain-text passwords.
-            // The "work factor" (12) determines the complexity of the hash.
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(userForRegistrationDto.Password, 12);
-
-            // 3. Create a new User domain model from the incoming DTO.
             var newUser = new User
             {
-                FirstName = userForRegistrationDto.FirstName,
-                LastName = userForRegistrationDto.LastName,
-                Email = userForRegistrationDto.Email,
-                PhoneNumber = userForRegistrationDto.PhoneNumber,
-                PasswordHash = hashedPassword
-                // The CreatedAt property is set by default in the User model.
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                CreatedAt = DateTime.UtcNow
             };
 
-            // 4. Add the new user to the database context and save the changes.
             await _context.Users.AddAsync(newUser);
             await _context.SaveChangesAsync();
 
-            // 5. Map the newly created user to a UserDto to safely return its public information.
-            // This prevents sensitive data like the password hash from being sent back to the client.
             var userDto = new UserDto
             {
                 UserId = newUser.UserId,
@@ -68,8 +55,71 @@ namespace CrispCut.Services
                 Email = newUser.Email
             };
 
-            return userDto;
+            return new AuthResponseDto { Success = true, Message = "Registration successful!", User = userDto };
+        }
+        
+        public async Task<AuthResponseDto> LoginAsync(UserForLoginDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            {
+                return new AuthResponseDto { Success = false, Message = "Invalid credentials." };
+            }
+
+            var userDto = new UserDto
+            {
+                UserId = user.UserId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email
+            };
+
+            // Generate JWT Token
+            var token = GenerateJwtToken(user);
+            
+            return new AuthResponseDto
+            {
+                Success = true,
+                Message = "Login successful!",
+                User = userDto,
+                Token = token 
+            };
         }
 
+        private string GenerateJwtToken(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(1), 
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"],
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public Task<AuthResponseDto> RegisterAsync(UserForRegistrationDto userForRegistration)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AuthResponseDto> LoginAsynce(UserForLoginDto userForLogin)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

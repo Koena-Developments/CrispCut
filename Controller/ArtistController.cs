@@ -1,14 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using CrispCut.DTOs.ArtistServiceDTO;
+using CrispCut.DTOs.AtristServiceDTO;
 using CrispCut.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CrispCut.Controller
 {
-   public class ArtistsController : ControllerBase
+   [ApiController]
+    [Route("api/[controller]")]
+    public class ArtistsController : ControllerBase
     {
         private readonly IArtistService _artistService;
 
@@ -17,54 +22,64 @@ namespace CrispCut.Controller
             _artistService = artistService;
         }
 
-        // Endpoint for Registering as a Artist
-        [HttpPost("onboard")]
-        public async Task<IActionResult> OnboardArtist([FromBody] ArtistOnBoardingDto onboardingDto)
+        [HttpPost("register")]
+        [Authorize]
+        public async Task<IActionResult> RegisterExistingUserAsArtist([FromBody] ArtistRegistrationDto dto)
         {
-            if (!ModelState.IsValid)
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString))
             {
-                return BadRequest(ModelState);
+                return Unauthorized("User ID not found in token.");
             }
 
-            try
+            var userId = int.Parse(userIdString);
+            var createdArtist = await _artistService.RegisterExistingUserAsArtistAsync(userId, dto);
+
+            if (createdArtist == null)
             {
-                var createdArtist = await _artistService.OnboardArtistAsync(onboardingDto);
-                return CreatedAtAction(nameof(OnboardArtist), new { artistId = createdArtist.ArtistId }, createdArtist);
+                return BadRequest("Failed to register artist. The user may already be an artist.");
             }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
-            }
+
+            return Ok(createdArtist);
         }
 
-        // This endpoint remains for an existing user who wants to become an artist.
-        [HttpPost("register")]
-        public async Task<IActionResult> RegisterArtist([FromBody] ArtistRegistrationDto artistRegistrationDto)
+        [HttpPost("onboard")]
+        public async Task<IActionResult> OnboardArtist([FromBody] ArtistOnBoardingDto dto)
         {
-            if (!ModelState.IsValid)
+            var createdArtist = await _artistService.OnboardArtistAsync(dto);
+            if (createdArtist == null)
             {
-                return BadRequest(ModelState);
+                return BadRequest("Failed to onboard artist. Email may already be in use.");
+            }
+            return Ok(createdArtist);
+        }
+        
+        [HttpGet("map-pins")]
+        public async Task<IActionResult> GetMapPins()
+        {
+            var pins = await _artistService.GetArtistMapPinsAsync();
+            return Ok(pins);
+        }
+
+        [HttpPost("services")]
+        [Authorize]
+        public async Task<IActionResult> AddServiceToProfile([FromBody] AddArtistServiceDto dto)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return Unauthorized("User ID not found in token.");
             }
 
-            try
+            var userId = int.Parse(userIdString);
+            var newService = await _artistService.AddServiceToProfileAsync(userId, dto);
+
+            if (newService == null)
             {
-                var createdArtist = await _artistService.RegisterArtistAsync(artistRegistrationDto);
-                return CreatedAtAction(nameof(RegisterArtist), new { artistId = createdArtist.ArtistId }, createdArtist);
+                return BadRequest("Failed to add service. Ensure you are a registered artist and the service does not already exist for your profile.");
             }
-            catch (InvalidOperationException ex)
-            {
-                // Catches errors like "User not found" or "Artist profile already exists".
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                // General catch-all for other server errors.
-                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
-            }
+
+            return Ok(newService);
         }
     }
 }

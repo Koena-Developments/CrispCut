@@ -1,4 +1,5 @@
 using System;
+using CrispCut.Enums;
 
 namespace CrispCut.DTOs.ArtistServiceDTO
 {
@@ -6,6 +7,8 @@ namespace CrispCut.DTOs.ArtistServiceDTO
     {
         public int ArtistServiceId { get; set; }
         public string ServiceName { get; set; }
+        public ArtistCategory Category { get; set; }
+        public string Description { get; set; }
         public decimal Price { get; set; }
         public int DurationMinutes { get; set; }
     }

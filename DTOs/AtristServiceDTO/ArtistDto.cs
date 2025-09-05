@@ -6,15 +6,18 @@ using CrispCut.Enums;
 
 namespace CrispCut.DTOs.ArtistServiceDTO
 {
-       public class ArtistDto
-    {
-        public int ArtistId { get; set; }
-        public int UserId { get; set; }
-        public string FullName { get; set; } 
-        public string Bio { get; set; }
-        public ArtistCategory Category { get; set; }
-        public string Address { get; set; }
-        public bool IsVerified { get; set; }
-        public decimal? AverageRating { get; set; }
-    }
+    public class ArtistDto
+{
+    public int ArtistId { get; set; }
+    public int UserId { get; set; }
+    public string FullName { get; set; }
+    public string Bio { get; set; }
+    public ArtistCategory Category { get; set; }
+    public string Address { get; set; }
+    public decimal LocationLat { get; set; }
+    public decimal LocationLng { get; set; }
+    public bool IsVerified { get; set; }
+    public string? OperatingHours { get; set; }
+    public decimal? AverageRating { get; set; }
+}
 }

@@ -7,10 +7,11 @@ using CrispCut.DTOs.AtristServiceDTO;
 
 namespace CrispCut.Interfaces
 {
-    public interface IArtistService
+       public interface IArtistService
     {
-        Task<ArtistDto> RegisterArtistAsync(ArtistRegistrationDto artistRegistrationDto);
-        Task<ArtistDto> OnboardArtistAsync(ArtistOnBoardingDto onboardingDto);
+        Task<ArtistDto?> RegisterExistingUserAsArtistAsync(int userId, ArtistRegistrationDto dto);
+        Task<ArtistDto?> OnboardArtistAsync(ArtistOnBoardingDto dto);
         Task<IEnumerable<ArtistMapPinDto>> GetArtistMapPinsAsync();
+        Task<ArtistServiceDto?> AddServiceToProfileAsync(int userId, AddArtistServiceDto dto);
     }
 }

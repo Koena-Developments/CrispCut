@@ -11,144 +11,187 @@ using CrispCut.DTOs.AtristServiceDTO;
 
 namespace CrispCut.Services
 
-{ public class ArtistService : IArtistService
-    {
-        private readonly ApplicationDbContext _context;
-        private readonly IEmailService _emailService;
-
-        public ArtistService(ApplicationDbContext context, IEmailService emailService)
+{
+        public class ArtistService : IArtistService
         {
-            _context = context;
-            _emailService = emailService;
-        }
+            private readonly ApplicationDbContext _context;
+            private readonly IEmailService _emailService;
 
-        public Task<IEnumerable<ArtistMapPinDto>> GetArtistMapPinsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<ArtistDto> OnboardArtistAsync(ArtistOnBoardingDto dto)
-        {
-            // Using a transaction to ensure both User and Artist are created successfully, or neither are.
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            public ArtistService(ApplicationDbContext context, IEmailService emailService)
             {
-                // Check if a user with this email already exists to prevent duplicates
-                if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+                _context = context;
+                _emailService = emailService;
+            }
+
+            public async Task<ArtistDto?> RegisterExistingUserAsArtistAsync(int userId, ArtistRegistrationDto dto)
+            {
+                var userIsAlreadyArtist = await _context.Artists.AnyAsync(a => a.UserId == userId);
+                if (userIsAlreadyArtist)
                 {
-                    throw new InvalidOperationException("A user with this email already exists.");
+                    return null;
                 }
 
-                // Create and save the new User record
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password, 12);
-                var newUser = new User
-                {
-                    FirstName = dto.FirstName,
-                    LastName = dto.LastName,
-                    Email = dto.Email,
-                    PhoneNumber = dto.PhoneNumber,
-                    PasswordHash = hashedPassword
-                };
-                await _context.Users.AddAsync(newUser);
-                await _context.SaveChangesAsync();
-
-                // Create and save the new Artist record, linking it to the new User
                 var newArtist = new Artist
                 {
-                    UserId = newUser.UserId,
+                    UserId = userId,
                     Bio = dto.Bio,
                     Category = dto.Category,
                     Address = dto.Address,
                     LocationLat = dto.LocationLat,
                     LocationLng = dto.LocationLng,
-                    OperatingHours = dto.OperatingHours,
-                    IsVerified = false 
+                    IsVerified = false,
+                    OperatingHours = dto.OperatingHours
                 };
-                await _context.Artists.AddAsync(newArtist);
+
+                _context.Artists.Add(newArtist);
                 await _context.SaveChangesAsync();
-                
-                // If both operations succeed, commit the transaction to the database
-                await transaction.CommitAsync();
 
-                // --- EMAIL TRIGGER ---
-                // After a successful registration, this code is called.
-                var emailSubject = "Your Trim Application is Under Review";
-                var emailBody = $"<p>Hi {newUser.FirstName},</p>" +
-                                "<p>Thank you for registering as an artist on Trim! Your profile has been received and is now pending verification.</p>" +
-                                "<p>We will contact you as soon as your profile has been approved.</p>" +
-                                "<p>Thank you,<br>The Trim Team</p>";
-                await _emailService.SendEmailAsync(newUser.Email, emailSubject, emailBody);
-
-                // Return the details of the newly created artist
                 return new ArtistDto
                 {
                     ArtistId = newArtist.ArtistId,
-                    UserId = newUser.UserId,
-                    FullName = $"{newUser.FirstName} {newUser.LastName}",
+                    UserId = newArtist.UserId,
                     Bio = newArtist.Bio,
                     Category = newArtist.Category,
                     Address = newArtist.Address,
-                    IsVerified = newArtist.IsVerified
+                    LocationLat = newArtist.LocationLat,
+                    LocationLng = newArtist.LocationLng,
+                    IsVerified = newArtist.IsVerified,
+                    OperatingHours = newArtist.OperatingHours,
+                    AverageRating = null
                 };
             }
-            catch (Exception)
+
+            public async Task<ArtistDto?> OnboardArtistAsync(ArtistOnBoardingDto dto)
             {
-                // If anything goes wrong, roll back the entire transaction
-                await transaction.RollbackAsync();
-                throw;
+                var emailExists = await _context.Users.AnyAsync(u => u.Email == dto.Email);
+                if (emailExists)
+                {
+                    return null;
+                }
+
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    var newUser = new User
+                    {
+                        FirstName = dto.FirstName,
+                        LastName = dto.LastName,
+                        Email = dto.Email,
+                        PhoneNumber = dto.PhoneNumber,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
+                    };
+                    _context.Users.Add(newUser);
+                    await _context.SaveChangesAsync();
+
+                    var newArtist = new Artist
+                    {
+                        UserId = newUser.UserId,
+                        Bio = dto.Bio,
+                        Category = dto.Category,
+                        Address = dto.Address,
+                        LocationLat = dto.LocationLat,
+                        LocationLng = dto.LocationLng,
+                        IsVerified = false,
+                        OperatingHours = dto.OperatingHours
+                    };
+                    _context.Artists.Add(newArtist);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    var emailSubject = "Your Application is Under Review";
+                    var emailBody = $"<p>Hi {newUser.FirstName},</p><p>Thank you for registering. Your artist profile is now under review. We will contact you once it's approved.</p>";
+                    await _emailService.SendEmailAsync(newUser.Email, emailSubject, emailBody);
+
+                    return new ArtistDto
+                    {
+                        ArtistId = newArtist.ArtistId,
+                        UserId = newUser.UserId,
+                        Bio = newArtist.Bio,
+                        Category = newArtist.Category,
+                        Address = newArtist.Address,
+                        LocationLat = newArtist.LocationLat,
+                        LocationLng = newArtist.LocationLng,
+                        IsVerified = newArtist.IsVerified,
+                        OperatingHours = newArtist.OperatingHours,
+                        AverageRating = null
+                    };
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return null;
+                }
+            }
+
+            public async Task<IEnumerable<ArtistMapPinDto>> GetArtistMapPinsAsync()
+            {
+                return await _context.Artists
+                    .Where(a => a.IsVerified)
+                    .Include(a => a.User)
+                    .Select(a => new ArtistMapPinDto
+                    {
+                        ArtistId = a.ArtistId,
+                        FullName = $"{a.User.FirstName} {a.User.LastName}",
+                        Category = a.Category,
+                        LocationLat = a.LocationLat,
+                        LocationLng = a.LocationLng
+                    })
+                    .ToListAsync();
+            }
+
+            public async Task<ArtistServiceDto?> AddServiceToProfileAsync(int userId, AddArtistServiceDto dto)
+            {
+                var artist = await _context.Artists.FirstOrDefaultAsync(a => a.UserId == userId);
+
+                // --- MODIFIED: Removed artist verification check ---
+                if (artist == null || artist.Category != dto.Category)
+                {
+                    return null;
+                }
+
+                var service = await _context.Services.FirstOrDefaultAsync(s =>
+                    s.ServiceName.ToLower() == dto.ServiceName.ToLower() && s.Category == dto.Category);
+
+                if (service == null)
+                {
+                    service = new Service
+                    {
+                        ServiceName = dto.ServiceName,
+                        Category = dto.Category,
+                        Description = dto.Description
+                    };
+                    _context.Services.Add(service);
+                    await _context.SaveChangesAsync();
+                }
+
+                var alreadyExists = await _context.ArtistServices.AnyAsync(a => a.ArtistId == artist.ArtistId && a.ServiceId == service.ServiceId);
+                if (alreadyExists)
+                {
+                    return null;
+                }
+
+                var newArtistService = new CrispCut.Models.ArtistService
+                {
+                    ArtistId = artist.ArtistId,
+                    ServiceId = service.ServiceId,
+                    Price = dto.Price,
+                    DurationMinutes = dto.DurationMinutes
+                };
+
+                _context.ArtistServices.Add(newArtistService);
+                await _context.SaveChangesAsync();
+
+                return new ArtistServiceDto
+                {
+                    ArtistServiceId = newArtistService.ArtistServiceId,
+                    ServiceName = service.ServiceName,
+                    Category = service.Category,
+                    Price = newArtistService.Price,
+                    DurationMinutes = newArtistService.DurationMinutes,
+                    Description = service.Description
+                };
             }
         }
 
-        public async Task<ArtistDto> RegisterArtistAsync(ArtistRegistrationDto dto)
-        {
-            // Implementation for an *existing* user who wants to become an artist
-            var user = await _context.Users.FindAsync(dto.UserId);
-            if (user == null)
-            {
-                throw new InvalidOperationException("User not found. Cannot create an artist profile.");
-            }
-
-            var existingArtistProfile = await _context.Artists.FirstOrDefaultAsync(a => a.UserId == dto.UserId);
-            if (existingArtistProfile != null)
-            {
-                throw new InvalidOperationException("This user already has an artist profile.");
-            }
-
-            var newArtist = new Artist
-            {
-                UserId = dto.UserId,
-                Bio = dto.Bio,
-                Category = dto.Category,
-                Address = dto.Address,
-                LocationLat = dto.LocationLat,
-                LocationLng = dto.LocationLng,
-                OperatingHours = dto.OperatingHours,
-                IsVerified = false,
-                AverageRating = null
-            };
-            await _context.Artists.AddAsync(newArtist);
-            await _context.SaveChangesAsync();
-
-            // Also send an email in this flow
-            var emailSubject = "Your Trim Application is Under Review";
-            var emailBody = $"<p>Hi {user.FirstName},</p>" +
-                            "<p>Thank you for registering as an artist on Trim! Your profile has been received and is now pending verification.</p>" +
-                            "<p>We will contact you as soon as your profile has been approved.</p>" +
-                            "<p>Thank you,<br>The Trim Team</p>";
-            await _emailService.SendEmailAsync(user.Email, emailSubject, emailBody);
-            
-            var artistDto = new ArtistDto
-            {
-                ArtistId = newArtist.ArtistId,
-                UserId = user.UserId,
-                FullName = $"{user.FirstName} {user.LastName}",
-                Bio = newArtist.Bio,
-                Category = newArtist.Category,
-                Address = newArtist.Address,
-                IsVerified = newArtist.IsVerified,
-                AverageRating = newArtist.AverageRating
-            };
-            return artistDto;
-        }
     }
-}

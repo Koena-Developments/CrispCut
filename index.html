@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trim | Find Your Perfect Artist</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Leaflet Map Library (CSS and JS) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Ensure the map container is always behind other elements */
+        #map {
+            z-index: 1;
+        }
+
+        /* Global styles for the body to ensure full screen layout */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent scrollbars */
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="relative w-screen h-screen overflow-hidden">
+
+    <!-- Map Container -->
+    <div id="map" class="w-full h-full z-0"></div>
+
+    <!-- Search Bar Overlay -->
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-11/12 max-w-md">
+        <div class="relative bg-white rounded-full shadow-lg">
+            <input
+              type="text"
+              placeholder="Search for artists or services..."
+              class="w-full py-3 pl-12 pr-4 text-gray-700 bg-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            <div class="absolute inset-y-0 left-0 flex items-center pl-4">
+                <svg
+                  class="w-5 h-5 text-gray-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                    <path
+                      fill-rule="evenodd"
+                      d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                      clip-rule="evenodd"
+                    />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Toggle Button -->
+    <button
+      id="sidebar-open-button"
+      class="absolute top-4 left-4 z-20 p-2 bg-white rounded-full shadow-lg text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      aria-label="Open sidebar"
+    >
+        <svg
+          class="w-6 h-6"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+        >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+        </svg>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar" class="fixed top-0 left-0 h-full z-30 transition-transform duration-300 ease-in-out -translate-x-full">
+        <nav class="h-full w-72 bg-white shadow-2xl p-6">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Trim</h2>
+                <button id="sidebar-close-button" class="text-gray-500 hover:text-gray-800" aria-label="Close sidebar">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <ul class="space-y-4">
+                <li>
+                    <a href="#" class="flex items-center p-2 text-lg text-gray-700 rounded-lg hover:bg-gray-100">
+                        <span class="ml-3">Sign In / Sign Up</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 text-lg text-gray-700 rounded-lg hover:bg-gray-100">
+                        <span class="ml-3">Register as an Artist</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 text-lg text-gray-700 rounded-lg hover:bg-gray-100">
+                        <span class="ml-3">About</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 text-lg text-gray-700 rounded-lg hover:bg-gray-100">
+                        <span class="ml-3">Help</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Sidebar background overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden" aria-hidden="true"></div>
+
+    <script>
+        // Wait for the DOM to be fully loaded before running any scripts
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Sidebar Logic ---
+            const sidebar = document.getElementById('sidebar');
+            const openButton = document.getElementById('sidebar-open-button');
+            const closeButton = document.getElementById('sidebar-close-button');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            const openSidebar = () => {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                overlay.classList.remove('hidden');
+            };
+
+            const closeSidebar = () => {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            };
+
+            openButton.addEventListener('click', openSidebar);
+            closeButton.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+
+            // --- Dummy Data ---
+            // This is a placeholder for your artists data using a plain JavaScript array.
+            const artists = [
+                {
+                    id: 1,
+                    name: '929 HairStudio',
+                    category: 'Barber',
+                    lat: -26.33597,
+                    lng: 27.87051,
+                },
+                {
+                    id: 2,
+                    name: 'Glamour Glow Makeup Studio',
+                    category: 'Makeup Artist',
+                    lat: -26.2750,
+                    lng: 27.8650,
+                },
+                {
+                    id: 3,
+                    name: 'Inked Legends Tattoos',
+                    category: 'Tattoo Artist',
+                    lat: -26.2655,
+                    lng: 27.8510,
+                },
+                {
+                    id: 4,
+                    name: 'Shear Style Hair Salon',
+                    category: 'Hairstylist',
+                    lat: -26.2801,
+                    lng: 27.8499,
+                },
+            ];
+
+            // --- Map Initialization ---
+            // Initialize map, centered on Lenasia, Gauteng
+            const map = L.map('map').setView([-26.27, 27.85], 13);
+
+            // Add the map tiles from OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            }).addTo(map);
+
+            // Loop through artists and add pins to the map
+            if (artists.length > 0) {
+                artists.forEach((artist) => {
+                    const marker = L.marker([artist.lat, artist.lng]).addTo(map);
+                    marker.bindPopup(`<b>${artist.name}</b><br>${artist.category}`);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

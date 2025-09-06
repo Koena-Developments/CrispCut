@@ -9,7 +9,7 @@ using CrispCut.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CrispCut.Controller
+namespace CrispCut.Controller                                                                                                                                                                                                                                                                                               
 {
    [ApiController]
     [Route("api/[controller]")]

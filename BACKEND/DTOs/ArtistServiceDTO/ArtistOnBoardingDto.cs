@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using CrispCut.Enums;
+using System.Text.Json.Serialization;
 namespace CrispCut.DTOs.ArtistServiceDTO
 {
     public class ArtistOnBoardingDto
@@ -28,6 +29,8 @@ namespace CrispCut.DTOs.ArtistServiceDTO
 
         [Required]
         public string Bio { get; set; }
+        
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ArtistCategory Category { get; set; }
         [Required]
         public string Address { get; set; }

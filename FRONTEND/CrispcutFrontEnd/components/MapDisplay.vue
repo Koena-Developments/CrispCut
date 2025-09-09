@@ -7,12 +7,9 @@ import { onMounted, ref } from 'vue';
 
 const mapContainer = ref(null);
 
-// 1. Fetch data from your backend API
 const { data: artists, pending, error } = await useFetch('http://localhost:5007/api/artists/map-pins');
 
-// onMounted ensures this code only runs on the client after the component is mounted
 onMounted(async () => {
-  // Dynamically import Leaflet only on the client-side
   const L = await import('leaflet');
 
   if (mapContainer.value) {
@@ -25,7 +22,6 @@ onMounted(async () => {
     // 2. Check if data was fetched successfully
     if (artists.value && artists.value.length > 0) {
       artists.value.forEach((artist) => {
-        // Create a custom popup with more details
         const popupContent = `
           <div>
             <img src="${artist.imageUrl}" alt="${artist.fullName}" style="width: 50px; height: 50px; border-radius: 50%;">

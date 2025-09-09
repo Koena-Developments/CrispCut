@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace CrispCut.Interfaces
 {
@@ -12,7 +8,7 @@ namespace CrispCut.Interfaces
         public List<BoltStopDto> Stops { get; set; }
 
         [JsonPropertyName("scheduled_time")]
-        public long? ScheduledTimeUnix { get; set; } // Optional: Unix timestamp for scheduled rides
+        public long? ScheduledTimeUnix { get; set; } 
     }
 
     public class BoltStopDto
@@ -24,7 +20,6 @@ namespace CrispCut.Interfaces
         public decimal Longitude { get; set; }
     }
 
-    // Represents the JSON response we get back from Bolt
     public class BoltRideResponseDto
     {
         [JsonPropertyName("order_id")]

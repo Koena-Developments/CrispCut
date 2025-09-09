@@ -21,7 +21,6 @@ export default defineNuxtConfig({
     head: {
       title: 'Trim | Find Your Perfect Artist',
       link: [
-        // Add Leaflet's CSS globally
         {
           rel: 'stylesheet',
           href: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',

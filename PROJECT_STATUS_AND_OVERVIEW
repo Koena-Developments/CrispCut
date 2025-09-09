@@ -1,0 +1,143 @@
+CrispCut Application: Status & Architecture Overview
+This document provides a comprehensive summary of the CrispCut backend application, including its current capabilities, future features, and the underlying software architecture.
+
+🚀 1. Currently Working API Endpoints
+The backend is fully functional with the following secure and logical API endpoints. They can be tested using the Swagger UI.
+
+Authentication (/api/auth)
+POST /register: Registers a new standard user account.
+
+POST /login: Logs in a user, returning a secure JWT for session management.
+
+GET /me (Protected): Returns the profile details of the currently logged-in user, including their user ID and whether they have an artist profile.
+
+Artists (/api/artists)
+POST /onboard: A dedicated endpoint for a brand new user to register as an artist in a single step. Creates both a User and an Artist record.
+
+POST /register (Protected): Allows an existing, logged-in user to create an artist profile.
+
+POST /services (Protected): Allows a logged-in artist to add a new service (e.g., "Men's Haircut") to their profile, including price and duration.
+
+GET /map-pins: A public endpoint that returns a list of all verified artists with the necessary details (name, category, location) to be displayed as pins on the frontend map.
+
+Bookings (/api/bookings)
+POST / (Protected): Allows a logged-in user to create a new booking for a specific artist's service at a specific time. This endpoint can also handle a request for a Bolt ride.
+
+🛠️ 2. Features to be Implemented
+The current foundation is strong. The next steps will involve building out the features that create a rich, interactive experience for both users and artists.
+
+Artist Profile Management:
+
+An endpoint to get a full artist profile, including their list of services, bio, operating hours, and all reviews.
+
+Endpoints for artists to update their profile information.
+
+Functionality for artists to upload a portfolio or gallery of their work.
+
+Booking Management:
+
+Endpoints for both users and artists to view their upcoming and past bookings.
+
+Logic and endpoints to handle cancellation and rescheduling of appointments, including business rules (e.g., no cancellations within 24 hours).
+
+Reviews and Ratings:
+
+A protected endpoint allowing a user to leave a review and a rating (1-5 stars) only after a booking's status is "Completed".
+
+Backend logic to automatically recalculate and update an artist's AverageRating every time a new review is submitted.
+
+Search and Filtering:
+
+Enhancing the /map-pins endpoint to support searching by artist name or service.
+
+Adding filtering capabilities (e.g., filter by artist category, rating, or price range).
+
+Payment Integration:
+
+Integrating a payment gateway (like Stripe or Paystack) to handle payments for bookings and the associated Bolt ride fare.
+
+Admin Verification System:
+
+A set of protected, admin-only endpoints to view a list of pending artist applications.
+
+An endpoint for an admin to set an artist's IsVerified flag to true, which would then allow them to appear on the public map.
+
+🏛️ 3. Program Architecture
+The application is built using a professional, multi-layered architecture known as Clean Architecture or N-Tier Architecture. This design separates concerns, making the application scalable, maintainable, and easy to test.
+
+The project is divided into four distinct layers:
+
+🌐 1. Domain Layer (CrispCut.Domain)
+Purpose: The absolute core of the application.
+
+Contains: C# models (User, Artist, Booking, etc.) and Enums that represent the fundamental business concepts.
+
+Rules: It has no dependencies on any other layer. It knows nothing about databases or the web.
+
+🧠 2. Application Layer (CrispCut.Application)
+Purpose: The business logic and orchestration layer.
+
+Contains:
+
+Interfaces (IAuthService, IArtistService) which define the "contracts" for what the application can do.
+
+Service Implementations (AuthService, ArtistService) which contain the actual business logic (e.g., how to register a user).
+
+Data Transfer Objects (DTOs) which shape the data sent to and from the API.
+
+Rules: Depends only on the Domain Layer.
+
+💾 3. Infrastructure Layer (CrispCut.Infrastructure)
+Purpose: Handles all external concerns, primarily database communication.
+
+Contains: The ApplicationDbContext, which uses Entity Framework Core to map the Domain models to database tables.
+
+Rules: Depends on the Application Layer.
+
+💻 4. API Layer (CrispCut.Api)
+Purpose: The entry point to the application. It exposes the business logic to the outside world.
+
+Contains:
+
+Controllers (AuthController, ArtistsController) which define the HTTP endpoints.
+
+Configuration (Program.cs) for services, authentication, and the HTTP pipeline.
+
+Rules: Depends on the Application Layer.
+
+This layered approach ensures that a change in one part of the system (like switching the database) has minimal impact on the others, creating a robust and professional backend.
+
+
+Auth data being sent:
+Objectemail: "thabangmotswenane511@gmail.com"
+password: "thabangmotswenane511@gmail.com"[[Prototype]]: Object
+index.vue:213 
+User object received from API: 
+Objectemail: "thabangmotswenane511@gmail.com"
+firstName: "Thabang"
+lastName: "Motswenyane"
+phoneNumber: "+27691017445"
+profilePictureUrl: nulluserId: 14[[Prototype]]: Objectconstructor: ƒ Object()hasOwnProperty: ƒ hasOwnProperty()isPrototypeOf: ƒ isPrototypeOf()propertyIsEnumerable: ƒ propertyIsEnumerable()toLocaleString: ƒ toLocaleString()toString: ƒ toString()valueOf: ƒ valueOf()__defineGetter__: ƒ __defineGetter__()__defineSetter__: ƒ __defineSetter__()__lookupGetter__: ƒ __lookupGetter__()__lookupSetter__: ƒ __lookupSetter__()__proto__: (...)get __proto__: ƒ __proto__()set __proto__: ƒ __proto__()
+index.vue:197 
+
+
+Auth data being sent: {
+    email: 'thabangmotswenane511@gmail.com', 
+    password: 'thabangmotswenane511@gmail.com'}
+    email: "thabangmotswenane511@gmail.com"password: 
+    "thabangmotswenane511@gmail.com"[[Prototype]]: Object
+index.vue:213 
+
+User object received from API: 
+{
+    userId: 14, 
+    firstName: 'Thabang', 
+    lastName: 'Motswenyane', 
+    email: 'thabangmotswenane511@gmail.com', 
+    phoneNumber: '+27691017445', …}
+    email: "thabangmotswenane511@gmail.com"
+    firstName: "Thabang"
+    lastName: "Motswenyane"
+    phoneNumber: "+27691017445"
+    profilePictureUrl: null
+    userId: 14[[Prototype]]: Object

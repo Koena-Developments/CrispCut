@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/pluto/Desktop/CRSIPCUT/BACKEND/Trim.csproj": {}
+    "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\BACKEND\\Trim.csproj": {}
   },
   "projects": {
-    "/home/pluto/Desktop/CRSIPCUT/BACKEND/Trim.csproj": {
+    "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\BACKEND\\Trim.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/pluto/Desktop/CRSIPCUT/BACKEND/Trim.csproj",
+        "projectUniqueName": "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\BACKEND\\Trim.csproj",
         "projectName": "Trim",
-        "projectPath": "/home/pluto/Desktop/CRSIPCUT/BACKEND/Trim.csproj",
-        "packagesPath": "/home/pluto/.nuget/packages/",
-        "outputPath": "/home/pluto/Desktop/CRSIPCUT/BACKEND/obj/",
+        "projectPath": "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\BACKEND\\Trim.csproj",
+        "packagesPath": "C:\\Users\\motsw\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\motsw\\Desktop\\Projects\\CrispCut\\BACKEND\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/pluto/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\motsw\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -38,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
@@ -102,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

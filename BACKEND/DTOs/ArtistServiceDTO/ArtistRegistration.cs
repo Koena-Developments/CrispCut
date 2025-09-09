@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CrispCut.Enums;
 
@@ -10,6 +11,7 @@ namespace CrispCut.DTOs.ArtistServiceDTO
     {
         public int UserId { get; set; }
         public string Bio { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ArtistCategory Category { get; set; }
         public string Address { get; set; }
         public decimal LocationLat { get; set; }

@@ -30,4 +30,4 @@
 <script setup>
 // Define the event this component can emit
 defineEmits(['toggle-sidebar']);
-</script>
+</script> 

@@ -32,6 +32,8 @@ namespace CrispCut.Models
     public string PasswordHash { get; set; }
 
     public string? ProfilePictureUrl { get; set; }
+
+    public string Role { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation Properties

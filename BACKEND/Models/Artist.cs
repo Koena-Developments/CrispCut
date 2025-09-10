@@ -27,6 +27,7 @@ public class Artist
     public bool IsVerified { get; set; } = false;
     public decimal? AverageRating { get; set; }
     public string? OperatingHours { get; set; } // Stored as JSON string
+    public string  Certificate { get; set; }
 
     // Navigation Properties
     [ForeignKey("UserId")]

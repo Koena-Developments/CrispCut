@@ -29,7 +29,10 @@ namespace CrispCut.DTOs.ArtistServiceDTO
 
         [Required]
         public string Bio { get; set; }
-        
+        public string  Certificate { get; set; }
+
+        [Required]
+        public string Role { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ArtistCategory Category { get; set; }
         [Required]

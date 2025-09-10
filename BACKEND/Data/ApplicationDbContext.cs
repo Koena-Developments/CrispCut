@@ -28,7 +28,7 @@ namespace CrispCut.Data
                 .HasOne(u => u.ArtistProfile)
                 .WithOne(a => a.User)
                 .HasForeignKey<Artist>(a => a.UserId);
-                
+
             // Configure the one-to-one relationship between Booking and Review
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.Review)
@@ -64,6 +64,11 @@ namespace CrispCut.Data
                 .WithMany(a => a.Reviews)
                 .HasForeignKey(r => r.ArtistId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasDefaultValue("User")
+                .IsRequired();
         }
     }
 }

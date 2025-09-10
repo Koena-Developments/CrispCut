@@ -57,66 +57,69 @@ namespace CrispCut.Services
                 };
             }
 
-    public async Task<ArtistDto?> OnboardArtistAsync(ArtistOnBoardingDto dto)
+   public async Task<ArtistDto?> OnboardArtistAsync(ArtistOnBoardingDto dto)
+{
+  var emailExists = await _context.Users.AnyAsync(u => u.Email == dto.Email);
+  if (emailExists)
+  {
+    return null;
+  }
+  var transaction = await _context.Database.BeginTransactionAsync();
+  try
+  {
+    var newUser = new User
     {
-      var emailExists = await _context.Users.AnyAsync(u => u.Email == dto.Email);
-      if (emailExists)
+      FirstName = dto.FirstName,
+      LastName = dto.LastName,
+      Email = dto.Email,
+      PhoneNumber = dto.PhoneNumber,
+      PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+      Role = dto.Role 
+    };
+      _context.Users.Add(newUser);
+      await _context.SaveChangesAsync();
+      
+      var newArtist = new Artist
       {
+        UserId = newUser.UserId,
+        Bio = dto.Bio,
+        Category = dto.Category,
+        Address = dto.Address,
+        LocationLat = dto.LocationLat,
+        LocationLng = dto.LocationLng,
+        IsVerified = false,
+        OperatingHours = dto.OperatingHours,
+        Certificate = dto.Certificate 
+      };
+      _context.Artists.Add(newArtist);
+      await _context.SaveChangesAsync();
+
+      await transaction.CommitAsync();
+
+      var emailSubject = "Your Application is Under Review";
+      var emailBody = $"<p>Hi {newUser.FirstName},</p><p>Thank you for registering. Your artist profile is now under review. We will contact you once it's approved.</p>";
+      await _emailService.SendEmailAsync(newUser.Email, emailSubject, emailBody);
+
+      return new ArtistDto
+      {
+        ArtistId = newArtist.ArtistId,
+        UserId = newUser.UserId,
+        Bio = newArtist.Bio,
+        Category = newArtist.Category,
+        Address = newArtist.Address,
+        LocationLat = newArtist.LocationLat,
+        LocationLng = newArtist.LocationLng,
+        IsVerified = newArtist.IsVerified,
+        OperatingHours = newArtist.OperatingHours,
+        AverageRating = null
+      };
+      }
+      catch (Exception)
+      {
+        await transaction.RollbackAsync();
         return null;
       }
-      var transaction = await _context.Database.BeginTransactionAsync();
-      try
-      {
-        var newUser = new User
-        {
-          FirstName = dto.FirstName,
-          LastName = dto.LastName,
-          Email = dto.Email,
-          PhoneNumber = dto.PhoneNumber,
-          PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-        };
-          _context.Users.Add(newUser);
-          await _context.SaveChangesAsync();
-          var newArtist = new Artist
-          {
-            UserId = newUser.UserId,
-            Bio = dto.Bio,
-            Category = dto.Category,
-            Address = dto.Address,
-            LocationLat = dto.LocationLat,
-            LocationLng = dto.LocationLng,
-            IsVerified = false,
-            OperatingHours = dto.OperatingHours
-          };
-          _context.Artists.Add(newArtist);
-          await _context.SaveChangesAsync();
-
-          await transaction.CommitAsync();
-
-          var emailSubject = "Your Application is Under Review";
-          var emailBody = $"<p>Hi {newUser.FirstName},</p><p>Thank you for registering. Your artist profile is now under review. We will contact you once it's approved.</p>";
-          await _emailService.SendEmailAsync(newUser.Email, emailSubject, emailBody);
-
-          return new ArtistDto
-          {
-            ArtistId = newArtist.ArtistId,
-            UserId = newUser.UserId,
-            Bio = newArtist.Bio,
-            Category = newArtist.Category,
-            Address = newArtist.Address,
-            LocationLat = newArtist.LocationLat,
-            LocationLng = newArtist.LocationLng,
-            IsVerified = newArtist.IsVerified,
-            OperatingHours = newArtist.OperatingHours,
-            AverageRating = null
-          };
-          }
-          catch (Exception)
-          {
-            await transaction.RollbackAsync();
-            return null;
-          }
-      }
+  }
 
          public async Task<IEnumerable<ArtistMapPinDto>> GetArtistMapPinsAsync()
 {
